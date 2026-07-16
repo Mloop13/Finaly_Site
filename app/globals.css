@@ -409,3 +409,93 @@ footer p:last-child { justify-self: end; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
 }
+
+/* =========================================================
+   ГОРИЗОНТАЛЬНЫЙ ДЕК
+   База = вертикальный фолбэк (мобилка / reduced-motion).
+   .deck.is-enabled — режим дека (desktop): панели встают в ряд и листаются.
+   ========================================================= */
+.deck { position: relative; }
+.deck-track { display: flex; flex-direction: column; }
+
+/* --- Кейс-слайд: базовая (вертикальная) раскладка, работает и в фолбэке --- */
+.case-panel { padding: 82px 5vw; border-bottom: 1px solid var(--line); background: var(--ink); }
+.case-inner { width: 100%; max-width: 1400px; margin: 0 auto; }
+.case-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.case-tag { display: flex; flex-direction: column; gap: 6px; }
+.case-tag .section-index { color: var(--muted); }
+.case-tag .eyebrow { color: var(--mint); margin: 0; }
+.case-count { font: 10px var(--font-geist-mono), monospace; color: var(--muted); letter-spacing: .14em; white-space: nowrap; text-align: right; }
+.case-count strong { display: block; font-family: var(--font-display); font-size: 34px; font-weight: 800; color: var(--paper); }
+.case-chapter { margin: 22px 0 0; max-width: 660px; color: #9fa9a5; font-size: 13px; line-height: 1.7; }
+.case-body { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 72px); align-items: center; margin-top: 42px; }
+.case-visual { position: relative; width: 100%; max-width: 460px; aspect-ratio: 1; background: linear-gradient(135deg, rgba(1,222,130,.09), transparent 55%), #041211; border: 1px solid rgba(1,222,130,.14); overflow: hidden; }
+.case-code { font: 10px var(--font-geist-mono), monospace; letter-spacing: .16em; color: var(--mint); }
+.case-copy h2 { font-family: var(--font-display); font-size: clamp(30px, 4vw, 60px); font-weight: 850; line-height: 1.03; letter-spacing: -.02em; text-transform: none; margin: 16px 0 18px; }
+.case-copy > p { max-width: 620px; color: #9fa9a5; line-height: 1.7; font-size: 14px; margin: 0; }
+.case-meta { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line); font: 9px var(--font-geist-mono), monospace; letter-spacing: .1em; color: var(--muted); }
+.case-meta span:last-child { color: var(--mint); }
+.case-cta { min-width: 0; width: fit-content; margin-top: 30px; }
+
+/* --- Режим дека включён --- */
+.deck.is-enabled { position: fixed; top: 76px; left: 0; right: 0; height: calc(100svh - 76px); overflow: hidden; z-index: 5; }
+.deck.is-enabled .deck-track {
+  flex-direction: row;
+  height: 100%;
+  width: max-content;
+  transform: translateX(var(--deck-x, 0px));
+  transition: transform .72s cubic-bezier(.76, 0, .24, 1);
+  will-change: transform;
+}
+.deck.is-enabled .deck-panel { flex: 0 0 100vw; width: 100vw; height: 100%; overflow: hidden; position: relative; border-bottom: 0; }
+
+/* header → фиксированная полоса, скролл страницы заглушен */
+body.deck-on { overflow: hidden; }
+body.deck-on .site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 20; }
+
+/* Панель 0 — hero + ticker: hero тянется, ticker прижат снизу */
+.deck.is-enabled .hero-panel { display: flex; flex-direction: column; }
+.deck.is-enabled .hero-panel .hero { flex: 1 1 auto; min-height: 0; height: auto; border-bottom: none; }
+.deck.is-enabled .hero-panel .ticker { flex: 0 0 auto; }
+.deck.is-enabled .hero-side { display: none; }
+
+/* Секции подгоняются под один экран: меньше паддинги, центрирование, кап заголовков */
+.deck.is-enabled .section { padding: clamp(26px, 4.5vh, 66px) clamp(28px, 5vw, 96px); }
+
+.deck.is-enabled .case-panel { display: flex; flex-direction: column; justify-content: center; padding: clamp(26px, 4.5vh, 60px) clamp(30px, 5vw, 100px); }
+.deck.is-enabled .case-body { margin-top: clamp(20px, 4vh, 44px); }
+.deck.is-enabled .case-visual { max-width: min(42vh, 420px); }
+
+.deck.is-enabled .method { align-content: center; }
+.deck.is-enabled .method h2 { font-size: clamp(40px, 6vw, 100px); }
+.deck.is-enabled .capability { padding: clamp(14px, 2.4vh, 26px) 12px; }
+
+.deck.is-enabled .about { align-content: center; }
+.deck.is-enabled .about-art { min-height: 0; height: min(64vh, 480px); }
+.deck.is-enabled .about-copy h2 { font-size: clamp(34px, 4.4vw, 74px); margin: 20px 0; }
+
+.deck.is-enabled .contact-panel .contact { height: 100%; min-height: 0; justify-content: center; padding: clamp(56px, 8vh, 108px) 3vw clamp(72px, 9vh, 120px); }
+.deck.is-enabled .contact h2 { font-size: clamp(44px, 7vw, 104px); }
+.deck.is-enabled .contact-panel footer { position: absolute; left: 0; right: 0; bottom: 0; border-top: 1px solid var(--line); background: var(--ink); }
+
+/* --- UI дека: точки, счётчик, подсказка --- */
+.deck-nav { position: fixed; right: clamp(14px, 2vw, 30px); top: 50%; transform: translateY(-50%); z-index: 22; display: flex; flex-direction: column; gap: 12px; }
+.deck-dot { width: 10px; height: 10px; padding: 0; border: 1px solid var(--muted); border-radius: 50%; background: transparent; cursor: pointer; transition: .2s ease; }
+.deck-dot:hover { border-color: var(--paper); }
+.deck-dot.is-active { background: var(--mint); border-color: var(--mint); box-shadow: 0 0 12px rgba(1,222,130,.55); }
+.deck-progress { position: fixed; left: clamp(16px, 3vw, 40px); bottom: clamp(16px, 3vh, 34px); z-index: 22; color: var(--muted); font: 11px var(--font-geist-mono), monospace; letter-spacing: .14em; }
+.deck-progress strong { color: var(--paper); font-size: 15px; font-weight: 400; }
+.deck-hint { position: fixed; right: clamp(40px, 6vw, 92px); bottom: clamp(16px, 3vh, 34px); z-index: 22; display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font: 10px var(--font-geist-mono), monospace; letter-spacing: .16em; text-transform: uppercase; transition: opacity .3s ease; }
+.deck-hint span { color: var(--mint); animation: hintNudge 1.4s ease-in-out infinite; }
+.deck-hint.is-hidden { opacity: 0; pointer-events: none; }
+@keyframes hintNudge { 0%,100%{transform:translateX(0)} 50%{transform:translateX(5px)} }
+
+/* --- Фолбэк кейс-слайдов на узких экранах (дек здесь выключен) --- */
+@media (max-width: 768px) {
+  .case-panel { padding: 70px 5vw; }
+  .case-head { flex-wrap: wrap; }
+  .case-body { grid-template-columns: 1fr; gap: 28px; margin-top: 30px; }
+  .case-visual { max-width: 320px; }
+  .case-copy h2 { font-size: clamp(26px, 8vw, 40px); }
+  .deck-nav, .deck-progress, .deck-hint { display: none; }
+}
