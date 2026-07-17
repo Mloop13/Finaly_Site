@@ -11,7 +11,8 @@ import { useEffect, useRef, useState } from "react";
  */
 const HINT_SANDBOX = "веди курсором — лепи Δ";
 const HINT_PLAY = "собери Δ целиком";
-const HINT_SOLVED = "Δ · система собрана";
+const HINT_SOLVED = "Δ · система собрана · ITHAKA5";
+const WIN_MESSAGE = "готово · промокод ITHAKA5 · скидка 5% на любую услугу";
 const HELP_MESSAGES = [
   "держи курсор ближе к светлому контуру",
   "веди по ребрам Δ, точки фиксируются сами",
@@ -51,10 +52,10 @@ export function ChaosSystem() {
     let helpIndex = 0;
     let toastTimer = 0;
 
-    const showToast = (text: string) => {
+    const showToast = (text: string, duration = 4200) => {
       window.clearTimeout(toastTimer);
       setToast(text);
-      toastTimer = window.setTimeout(() => setToast(""), 4200);
+      toastTimer = window.setTimeout(() => setToast(""), duration);
     };
 
     /**
@@ -192,8 +193,7 @@ export function ChaosSystem() {
       if (playRef.current && !solved && particles.length && ordered / particles.length >= 0.93) {
         solved = true;
         wrap.classList.add("is-solved");
-        window.clearTimeout(toastTimer);
-        setToast("");
+        showToast(WIN_MESSAGE, 9000);
         const hint = wrap.querySelector(".chaos-hint");
         if (hint) hint.textContent = HINT_SOLVED;
       }

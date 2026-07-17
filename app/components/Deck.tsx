@@ -173,7 +173,9 @@ export function Deck({ children, hint = "листай" }: { children: ReactNode;
       <div className={`deck-header-controls${index === count - 1 ? " is-complete" : ""}`} style={controlsStyle}>
         <nav className="deck-nav" aria-label="Навигация по страницам">
           {Array.from({ length: count }).map((_, i) => {
-            const stateClass = `${i <= index ? " is-filled" : ""}${i === index ? " is-active" : ""}`;
+            const stateClass = `${i < index ? " is-past" : ""}${i <= index ? " is-filled" : ""}${
+              i === index ? " is-active" : ""
+            }`;
             return (
               <button
                 key={i}

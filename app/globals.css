@@ -43,7 +43,7 @@ a { color: inherit; text-decoration: none; }
 button, a { -webkit-tap-highlight-color: transparent; }
 
 .site-header {
-  --header-actions-space: clamp(248px, 23vw, 360px);
+  --header-actions-space: clamp(216px, 19vw, 304px);
   height: 76px;
   padding: 0;
   display: block;
@@ -232,7 +232,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   --scan-size: clamp(170px, 20vw, 300px);
   position: absolute;
   z-index: 1;
-  right: clamp(22px, 4.5vw, 92px);
+  right: clamp(54px, 7vw, 136px);
   top: clamp(22px, 5vh, 62px);
   width: min(48vw, 70.4vh, 736px);
   min-width: 520px;
@@ -286,7 +286,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   font-size: min(75vw, 920px);
   font-weight: 900;
   line-height: .8;
-  right: -1vw; top: 1vh;
+  right: clamp(18px, 4vw, 104px); top: 1vh;
   opacity: .92;
 }
 .scan-square {
@@ -562,8 +562,8 @@ footer p:last-child { justify-self: end; }
   position: absolute; inset: 0;
   pointer-events: none;
 }
-/* ITHAKA-подложка глитчит чаще и жёстче, три расходящихся канала:
-   минт сверху, мажента снизу, циан по середине — читается как RGB-сбой */
+/* ITHAKA-подложка глитчит чаще и жёстче, без синего канала:
+   минт сверху, бумажный слой снизу и мягкий белый средний срез */
 .hero-word::before { color: var(--mint); animation: glitchTop 2.6s steps(1) infinite; }
 .hero-word::after { color: var(--paper); animation: glitchBot 2.6s steps(1) infinite; }
 .hero-word-layer { position: absolute; inset: 0; pointer-events: none; }
@@ -571,7 +571,7 @@ footer p:last-child { justify-self: end; }
   content: attr(data-text);
   position: absolute;
   inset: 0;
-  color: var(--cyan);
+  color: var(--paper);
   animation: glitchMid 2.6s steps(1) infinite;
 }
 @keyframes glitchMid {
@@ -600,12 +600,36 @@ footer p:last-child { justify-self: end; }
 .glitch-h { will-change: contents; }
 /* строки-строки внутри JS-glitch заголовков (scramble / swap) */
 .glitch-line { display: block; }
+.glitch-chroma {
+  animation: chromaLoop 3.5s linear infinite;
+}
+
+@keyframes chromaLoop {
+  0%, 85%, 100% { text-shadow: none; transform: none; }
+  86% {
+    text-shadow: -7px 0 rgba(1,222,130,.95), 7px 0 rgba(53,230,255,.85);
+    transform: translateX(-4px) skewX(-1.5deg);
+  }
+  89% {
+    text-shadow: 8px 0 rgba(1,222,130,.9), -8px 0 rgba(53,230,255,.8);
+    transform: translateX(4px) skewX(1deg);
+  }
+  92% {
+    text-shadow: -5px 1px 0 rgba(1,222,130,.9), 5px -1px rgba(241,240,234,.7);
+    transform: translateX(-2px);
+  }
+  95% {
+    text-shadow: 4px 0 rgba(53,230,255,.85), -4px 0 rgba(1,222,130,.85);
+    transform: none;
+  }
+  98% { text-shadow: -2px 0 rgba(1,222,130,.6), 2px 0 rgba(53,230,255,.5); }
+}
 
 @media (max-width: 1050px) {
   .hero { height: 820px; }
   .hero-word { font-size: 22vw; }
   .hero-art {
-    right: clamp(-80px, -8vw, -24px);
+    right: clamp(-28px, -2.4vw, 12px);
     top: clamp(44px, 6vh, 70px);
     width: min(68vw, 62.4vh, 760px);
     min-width: min(520px, 72vw);
@@ -639,11 +663,11 @@ footer p:last-child { justify-self: end; }
     width: clamp(390px, 104vw, 520px);
     aspect-ratio: 4 / 5;
     height: auto;
-    right: clamp(-156px, -31vw, -126px);
+    right: clamp(-76px, -15vw, -44px);
     top: clamp(66px, 12svh, 104px);
     opacity: .5;
   }
-  .hero-chevron { font-size: 98vw; opacity: .2; }
+  .hero-chevron { font-size: 92vw; opacity: .18; right: clamp(-8px, 2vw, 24px); }
   .scan-square { opacity: .62; }
   .hero-copy { left: 5vw; width: 86vw; bottom: 22px; }
   .hero-copy h1 { font-size: clamp(34px, 9.4vw, 42px); line-height: .96; letter-spacing: -.055em; }
@@ -810,12 +834,16 @@ body.deck-on .site-header > nav { display: none; }
 .deck-dot.is-filled {
   color: var(--paper);
   background:
-    linear-gradient(90deg, rgba(1,222,130,.2), rgba(1,222,130,.095) 52%, rgba(1,222,130,.025));
+    linear-gradient(90deg, rgba(1,222,130,.18), rgba(1,222,130,.085) 56%, rgba(1,222,130,.02));
+}
+.deck-dot.is-past {
+  background: rgba(1,222,130,.12);
+  box-shadow: inset 0 -2px 0 rgba(1,222,130,.38);
 }
 .deck-dot.is-active {
   color: var(--paper);
   background:
-    linear-gradient(90deg, rgba(1,222,130,.24), rgba(1,222,130,.12) 52%, rgba(1,222,130,.035));
+    linear-gradient(90deg, rgba(1,222,130,.22), rgba(1,222,130,.105) 56%, rgba(1,222,130,.025));
   box-shadow: inset 0 -2px 0 rgba(1,222,130,.65);
 }
 .deck-dot.is-active span { color: var(--paper); opacity: .8; }
