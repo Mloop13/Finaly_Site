@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "./i18n/context";
 import { homeDict } from "./i18n/home";
 import { LanguageToggle } from "./components/LanguageToggle";
 import { Deck } from "./components/Deck";
 import { ChaosSystem } from "./components/ChaosSystem";
 import { GlitchText } from "./components/GlitchText";
+import { ScanPortrait } from "./components/ScanPortrait";
+import { CursorField } from "./components/CursorField";
 
 const projectsMeta = [
   {
@@ -48,6 +50,38 @@ export default function Home() {
   const [openCap, setOpenCap] = useState<number | null>(0);
   const toggleCap = (i: number) => setOpenCap((prev) => (prev === i ? null : i));
 
+  // ITHAKA-подложку равняем по самой длинной строке заголовка. Считать константой
+  // в CSS нельзя: у ru и en разные тексты («в работающую» / «into a working»),
+  // а строки заголовка nowrap и выходят за свой блок — эталон только фактический текст.
+  const wordRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    const word = wordRef.current;
+    const heading = headingRef.current;
+    if (!word || !heading) return;
+
+    const textWidth = (el: Element) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return range.getBoundingClientRect().width;
+    };
+
+    const fit = () => {
+      let widest = 0;
+      for (const line of heading.querySelectorAll("span")) widest = Math.max(widest, textWidth(line));
+      const size = parseFloat(getComputedStyle(word).fontSize);
+      const width = textWidth(word);
+      if (!widest || !width || !size) return;
+      // ширина слова линейна по font-size — снимаем коэффициент и решаем под нужную ширину
+      word.style.fontSize = `${widest / (width / size)}px`;
+    };
+
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(heading);
+    return () => ro.disconnect();
+  }, [lang]);
+
   const projects = projectsMeta.map((meta, i) => ({ ...meta, ...t.projects[i] }));
   const capabilities = capabilityNumbers.map((number, i) => ({ number, ...t.capabilities[i] }));
 
@@ -61,9 +95,12 @@ export default function Home() {
           <a href="#projects">{t.nav.projects}</a>
           <a href="#method">{t.nav.method}</a>
           <a href="#about">{t.nav.about}</a>
-          <a href={`${basePath}/play/`}>PLAY</a>
         </nav>
         <div className="header-actions">
+          <span className="header-status status-line">
+            <span className="status-dot" /> SYSTEM ONLINE
+            <span className="status-detail">PORTFOLIO / BUILD 01</span>
+          </span>
           <LanguageToggle />
           <a className="header-cta" href="https://github.com/Mloop13" target="_blank" rel="noreferrer">
             GitHub <span>↗</span>
@@ -75,18 +112,17 @@ export default function Home() {
         {/* Панель 0 — Hero + ticker */}
         <div className="deck-panel hero-panel">
           <section className="hero" id="top">
-            <div className="hero-status status-line">
-              <span className="status-dot" /> SYSTEM ONLINE
-              <span className="status-detail">PORTFOLIO / BUILD 01</span>
-            </div>
+            <CursorField />
 
-            <div className="hero-word" aria-label="ITHAKA" data-text="ITHAKA">
+            <div className="hero-word" ref={wordRef} aria-label="ITHAKA" data-text="ITHAKA">
               ITHAKA
+              {/* третий канал глитча: ::before/::after заняты минтом и маджентой */}
+              <span className="hero-word-layer" data-text="ITHAKA" aria-hidden="true" />
             </div>
 
             <div className="hero-copy">
               <div className="eyebrow">IT × HAKA / THE WAY TO A WORKING SYSTEM</div>
-              <h1 className="glitch-h">
+              <h1 className="glitch-h" ref={headingRef}>
                 {t.hero.lines.map((line, i) => (
                   <span key={line} className={i === t.hero.lines.length - 1 ? "h-accent" : undefined}>
                     {line}
@@ -106,18 +142,7 @@ export default function Home() {
 
             <div className="hero-art" aria-hidden="true">
               <div className="hero-chevron">›</div>
-              <img
-                src={`${basePath}/ithaka-hero.webp`}
-                alt=""
-                draggable={false}
-                onContextMenu={(e) => e.preventDefault()}
-              />
-              <div className="scan-square">
-                <span>SCULPT.EXE</span>
-                <span>RENDER PASS_07</span>
-                <span>STATUS: OK</span>
-              </div>
-              <div className="crosshair">+</div>
+              <ScanPortrait basePath={basePath} />
             </div>
 
             <div className="hero-side" aria-hidden="true">
@@ -149,10 +174,21 @@ export default function Home() {
 
         {/* Панель 1 — Кейсы: сетка 2×2 */}
         <section className="deck-panel cases-panel section" id="projects">
+          <CursorField mode="hold" />
           <div className="cases-head">
-            <div className="cases-tag">
-              <span className="section-index">/ 01 · SELECTED WORK</span>
-              <p className="eyebrow">PROOF OF PROCESS</p>
+            <div className="cases-title">
+              <div className="cases-head-inner">
+                <h2>
+                  <GlitchText
+                    mode="swap"
+                    lines={[{ text: t.projectsSection.heading[0] }, { text: t.projectsSection.heading[1], accent: true }]}
+                  />
+                </h2>
+                <div className="cases-kicker">
+                  <span className="section-index">/ 01</span>
+                  <p className="eyebrow">SELECTED WORK / PROOF OF PROCESS</p>
+                </div>
+              </div>
             </div>
             <p className="cases-intro">{t.projectsSection.intro}</p>
             <span className="cases-count">
@@ -200,6 +236,7 @@ export default function Home() {
 
         {/* Панель 5 — Метод */}
         <section className="deck-panel method section" id="method">
+          <CursorField mode="hold" />
           <div className="method-title">
             <div className="method-head">
               <h2>
@@ -248,6 +285,7 @@ export default function Home() {
 
         {/* Панель 6 — Обо мне */}
         <section className="deck-panel about section" id="about">
+          <CursorField mode="hold" />
           <div className="about-art">
             <ChaosSystem />
           </div>
@@ -269,6 +307,7 @@ export default function Home() {
         {/* Панель 7 — Контакт + footer */}
         <div className="deck-panel contact-panel">
           <section className="contact section">
+            <CursorField mode="hold" />
             <div className="contact-top">
               <span className="status-line"><span className="status-dot" /> OPEN CHANNEL</span>
               <span>BUILD 01 / 2026</span>
@@ -276,10 +315,23 @@ export default function Home() {
             <h2 className="glitch-chroma">
               {t.contact.heading[0]}<br />{t.contact.heading[1]}<br /><span className="h-accent">{t.contact.heading[2]}</span>
             </h2>
-            <a className="contact-action" href="https://telegram.me/Wand33rlust" target="_blank" rel="noreferrer">
-              <span>{t.contact.action}</span>
-              <strong>↗</strong>
-            </a>
+            <div className="contact-channels">
+              <a className="contact-action" href="https://telegram.me/Wand33rlust" target="_blank" rel="noreferrer">
+                <span>{t.contact.action}</span>
+                <em>@Wand33rlust</em>
+                <strong>↗</strong>
+              </a>
+              <a className="contact-action" href="mailto:ithakawork@gmail.com">
+                <span>{t.contact.actionEmail}</span>
+                <em>ithakawork@gmail.com</em>
+                <strong>↗</strong>
+              </a>
+              <a className="contact-action" href="https://x.com/Wand33rlust_" target="_blank" rel="noreferrer">
+                <span>{t.contact.actionX}</span>
+                <em>@Wand33rlust_</em>
+                <strong>↗</strong>
+              </a>
+            </div>
           </section>
 
           <footer>

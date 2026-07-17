@@ -4,23 +4,22 @@ import { useEffect, useRef, useState } from "react";
 
 /**
  * «Из хаоса — в систему» — интерактивное поле частиц для панели About.
- * Точки дрейфуют хаосом; курсором их нужно СОБРАТЬ в древнегреческий символ (Δ).
- * Призрачный контур цели всегда виден — он показывает «путь до порядка». Радиус
- * сбора небольшой, а собранные точки не разбегаются, поэтому символ нужно
- * «прорисовать» целиком. «Сброс» рассыпает прогресс, «Песочница» снимает фиксацию
- * и даёт свободно лепить (точки мягко возвращаются в хаос, символ не защёлкивается).
+ * По умолчанию это песочница: точки мягко тянутся за курсором и так же мягко
+ * возвращаются в хаос — свободная лепка без цели. Кнопка «Играть» включает
+ * режим задачи: собранные точки фиксируются, цель — прорисовать Δ целиком.
  * Пауза вне вида; статичный символ при reduced-motion.
  */
-const GLYPH = "Δ";
-const HINT_DEFAULT = "веди курсором — собери Δ";
+const HINT_SANDBOX = "веди курсором — лепи Δ";
+const HINT_PLAY = "собери Δ целиком";
 const HINT_SOLVED = "Δ · система собрана";
 
 export function ChaosSystem() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sandboxRef = useRef(false);
+  // песочница — режим по умолчанию; «Играть» включает режим с фиксацией и целью
+  const playRef = useRef(false);
   const resetRef = useRef<() => void>(() => {});
-  const [sandboxOn, setSandboxOn] = useState(false);
+  const [playOn, setPlayOn] = useState(false);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -37,36 +36,38 @@ export function ChaosSystem() {
     let particles: P[] = [];
     let W = 0;
     let H = 0;
-    const mouse = { x: -9999, y: -9999, active: false };
+    // курсор сглаживаем отдельно от сырых событий — иначе точки дёргаются рывками
+    const mouse = { x: -9999, y: -9999, sx: -9999, sy: -9999, active: false };
     let raf = 0;
     let visible = false;
     let solved = false;
 
-    // Сэмплируем форму символа: рисуем его в offscreen и берём заполненные пиксели.
-    const sampleGlyph = (count: number) => {
-      const oc = document.createElement("canvas");
-      const s = 200;
-      oc.width = s;
-      oc.height = s;
-      const octx = oc.getContext("2d");
-      if (!octx) return [];
-      octx.fillStyle = "#fff";
-      octx.font = `800 ${Math.round(s * 0.82)}px "Arial Narrow", Arial, sans-serif`;
-      octx.textAlign = "center";
-      octx.textBaseline = "middle";
-      octx.fillText(GLYPH, s / 2, s / 2 + s * 0.02);
-      const data = octx.getImageData(0, 0, s, s).data;
+    /**
+     * Точки цели — равносторонний Δ, построенный геометрией, а не шрифтом:
+     * у буквенного Δ в Arial вершина даёт зазубрину и «оторванную» точку сверху.
+     * Сэмплируем контур (рёбра) равномерно по периметру — форма читается чище,
+     * чем у заливки, и точки распределяются ровно.
+     */
+    const sampleTriangle = (count: number) => {
+      const A = { x: 0.5, y: 0.06 };
+      const B = { x: 0.955, y: 0.94 };
+      const C = { x: 0.045, y: 0.94 };
+      const edges: [typeof A, typeof A][] = [
+        [A, B],
+        [B, C],
+        [C, A],
+      ];
+      const len = (p: typeof A, q: typeof A) => Math.hypot(q.x - p.x, q.y - p.y);
+      const total = edges.reduce((s, [p, q]) => s + len(p, q), 0);
       const pts: { x: number; y: number }[] = [];
-      for (let y = 0; y < s; y += 2) {
-        for (let x = 0; x < s; x += 2) {
-          if (data[(y * s + x) * 4 + 3] > 128) pts.push({ x: x / s, y: y / s });
+      for (const [p, q] of edges) {
+        const n = Math.max(2, Math.round((len(p, q) / total) * count));
+        for (let i = 0; i < n; i++) {
+          const t = i / n;
+          pts.push({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t });
         }
       }
-      const out: { x: number; y: number }[] = [];
-      if (pts.length === 0) return out;
-      const step = pts.length / count;
-      for (let i = 0; i < count; i++) out.push(pts[Math.floor(i * step)]);
-      return out;
+      return pts.slice(0, count);
     };
 
     const build = () => {
@@ -79,7 +80,7 @@ export function ChaosSystem() {
       canvas.style.width = W + "px";
       canvas.style.height = H + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const glyph = sampleGlyph(N);
+      const glyph = sampleTriangle(N);
       const side = Math.min(W, H) * 0.74;
       const ox = (W - side) / 2;
       const oy = (H - side) / 2;
@@ -113,15 +114,24 @@ export function ChaosSystem() {
         raf = 0;
         return;
       }
-      const rad = Math.min(W, H) * 0.14;
+      const rad = Math.min(W, H) * 0.18;
       ctx.clearRect(0, 0, W, H);
-      // призрачный контур цели — показывает, куда вести точки («путь до порядка»);
-      // мягко «дышит», чтобы цель считывалась и притягивала взгляд
+
+      // курсор догоняет свою цель плавно — источник «мягкости» всей сцены
+      if (mouse.active) {
+        mouse.sx += (mouse.x - mouse.sx) * 0.18;
+        mouse.sy += (mouse.y - mouse.sy) * 0.18;
+      }
+
+      // призрачный контур виден всегда: в игре это цель, в песочнице — подсказка,
+      // что здесь вообще есть форма (без него панель читается пустой)
       if (!solved) {
-        const pulse = 0.13 + 0.06 * (0.5 + 0.5 * Math.sin(ts / 900));
+        const base = playRef.current ? 0.13 : 0.07;
+        const pulse = base + 0.06 * (0.5 + 0.5 * Math.sin(ts / 900));
         ctx.fillStyle = `rgba(1,222,130,${pulse})`;
         for (const p of particles) ctx.fillRect(p.hx - 1.4, p.hy - 1.4, 2.8, 2.8);
       }
+
       let ordered = 0;
       for (const p of particles) {
         const dcx = p.cx + Math.cos(ts / 1400 + p.ph) * (W * 0.035);
@@ -129,12 +139,12 @@ export function ChaosSystem() {
         let want = 0;
         if (solved) want = 1;
         else if (mouse.active) {
-          const d = Math.hypot(mouse.x - p.hx, mouse.y - p.hy);
-          want = 1 - Math.min(1, d / rad);
+          const d = Math.hypot(mouse.sx - p.hx, mouse.sy - p.hy);
+          const raw = 1 - Math.min(1, d / rad);
+          want = raw * raw * (3 - 2 * raw); // smoothstep: мягкий край радиуса вместо резкой границы
         }
-        // притягиваются быстро; в обычном режиме собранные держатся (нужно
-        // прорисовать символ целиком), в песочнице — мягко возвращаются в хаос
-        const ease = want > p.order ? 0.45 : (sandboxRef.current ? 0.05 : 0);
+        // притяжение мягкое; в игре собранное держится, в песочнице — плавно тает
+        const ease = want > p.order ? 0.12 : playRef.current ? 0 : 0.028;
         p.order += (want - p.order) * ease;
         if (p.order > 0.7) ordered++;
         const o = p.order;
@@ -149,8 +159,9 @@ export function ChaosSystem() {
           ctx.fill();
         }
       }
-      // в песочнице символ не защёлкивается — это свободная лепка
-      if (!sandboxRef.current && !solved && particles.length && ordered / particles.length >= 0.93) {
+
+      // защёлкивается только в режиме игры — песочница это свободная лепка
+      if (playRef.current && !solved && particles.length && ordered / particles.length >= 0.93) {
         solved = true;
         wrap.classList.add("is-solved");
         const hint = wrap.querySelector(".chaos-hint");
@@ -163,7 +174,6 @@ export function ChaosSystem() {
       if (!reduce && !raf && visible) raf = requestAnimationFrame(frame);
     };
 
-    // рассыпать прогресс и начать заново
     const doReset = () => {
       for (const p of particles) {
         p.order = 0;
@@ -175,7 +185,7 @@ export function ChaosSystem() {
       solved = false;
       wrap.classList.remove("is-solved");
       const hint = wrap.querySelector(".chaos-hint");
-      if (hint) hint.textContent = HINT_DEFAULT;
+      if (hint) hint.textContent = playRef.current ? HINT_PLAY : HINT_SANDBOX;
       if (reduce) drawStatic();
       else start();
     };
@@ -183,14 +193,23 @@ export function ChaosSystem() {
 
     const onMove = (e: PointerEvent) => {
       const rect = wrap.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
+      const nx = e.clientX - rect.left;
+      const ny = e.clientY - rect.top;
+      if (!mouse.active) {
+        // первый вход — ставим сглаженную позицию на курсор, иначе точки рванут через всё поле
+        mouse.sx = nx;
+        mouse.sy = ny;
+      }
+      mouse.x = nx;
+      mouse.y = ny;
       mouse.active = true;
     };
     const onLeave = () => {
       mouse.active = false;
       mouse.x = -9999;
       mouse.y = -9999;
+      mouse.sx = -9999;
+      mouse.sy = -9999;
     };
 
     build();
@@ -222,10 +241,10 @@ export function ChaosSystem() {
     };
   }, []);
 
-  const toggleSandbox = () => {
-    const on = !sandboxRef.current;
-    sandboxRef.current = on;
-    setSandboxOn(on);
+  const togglePlay = () => {
+    const on = !playRef.current;
+    playRef.current = on;
+    setPlayOn(on);
     resetRef.current();
   };
 
@@ -238,14 +257,14 @@ export function ChaosSystem() {
         </button>
         <button
           type="button"
-          className={`chaos-btn${sandboxOn ? " is-on" : ""}`}
-          onClick={toggleSandbox}
-          aria-pressed={sandboxOn}
+          className={`chaos-btn${playOn ? " is-on" : ""}`}
+          onClick={togglePlay}
+          aria-pressed={playOn}
         >
-          Песочница
+          {playOn ? "Играю" : "Играть"}
         </button>
       </div>
-      <span className="chaos-hint">{HINT_DEFAULT}</span>
+      <span className="chaos-hint">{HINT_SANDBOX}</span>
     </div>
   );
 }

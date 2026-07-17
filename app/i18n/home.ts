@@ -13,7 +13,7 @@ export type HomeDict = {
   method: { heading: string[] };
   capabilities: Array<{ title: string; text: string }>;
   about: { heading: string; lead: string; paragraph: string };
-  contact: { heading: string[]; action: string };
+  contact: { heading: string[]; action: string; actionEmail: string; actionX: string };
 };
 
 const ru: HomeDict = {
@@ -69,6 +69,8 @@ const ru: HomeDict = {
   contact: {
     heading: ["Есть хаос,", "который пора", "собрать?"],
     action: "Написать в Telegram",
+    actionEmail: "Написать на почту",
+    actionX: "Читать в X",
   },
 };
 
@@ -125,6 +127,8 @@ const en: HomeDict = {
   contact: {
     heading: ["There's chaos,", "that's ready", "to be built?"],
     action: "Message on Telegram",
+    actionEmail: "Send an email",
+    actionX: "Follow on X",
   },
 };
 
