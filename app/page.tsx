@@ -87,31 +87,20 @@ export default function Home() {
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="ITHAKA — наверх">
-          ITHAKA<span className="brand-slash">/</span>
-        </a>
-        <nav aria-label="Основная навигация">
-          <a href="#projects">{t.nav.projects}</a>
-          <a href="#method">{t.nav.method}</a>
-          <a href="#about">{t.nav.about}</a>
-        </nav>
+        <div id="deck-header-controls" className="deck-header-slot" aria-live="polite" />
         <div className="header-actions">
-          <span className="header-status status-line">
-            <span className="status-dot" /> SYSTEM ONLINE
-            <span className="status-detail">PORTFOLIO / BUILD 01</span>
-          </span>
           <LanguageToggle />
-          <a className="header-cta" href="https://github.com/Mloop13" target="_blank" rel="noreferrer">
-            GitHub <span>↗</span>
-          </a>
         </div>
       </header>
 
       <Deck hint={lang === "ru" ? "листай" : "scroll"}>
-        {/* Панель 0 — Hero + ticker */}
+        {/* Панель 0 — Hero */}
         <div className="deck-panel hero-panel">
           <section className="hero" id="top">
             <CursorField />
+            <span className="hero-status status-line">
+              <span className="status-dot" /> SYSTEM ONLINE
+            </span>
 
             <div className="hero-word" ref={wordRef} aria-label="ITHAKA" data-text="ITHAKA">
               ITHAKA
@@ -121,7 +110,7 @@ export default function Home() {
 
             <div className="hero-copy">
               <div className="eyebrow">IT × HAKA / THE WAY TO A WORKING SYSTEM</div>
-              <h1 className="glitch-h" ref={headingRef}>
+              <h1 className="glitch-h glitch-chroma" ref={headingRef}>
                 {t.hero.lines.map((line, i) => (
                   <span key={line} className={i === t.hero.lines.length - 1 ? "h-accent" : undefined}>
                     {line}
@@ -131,7 +120,7 @@ export default function Home() {
               <p>{t.hero.paragraph}</p>
               <div className="hero-actions">
                 <a className="button button-primary" href="#projects">
-                  {t.hero.ctaPrimary} <span>↓</span>
+                  {t.hero.ctaPrimary} <span>→</span>
                 </a>
                 <a className="text-link" href="https://telegram.me/Wand33rlust" target="_blank" rel="noreferrer">
                   {t.hero.ctaSecondary} <span>↗</span>
@@ -143,13 +132,13 @@ export default function Home() {
               <div className="hero-chevron">›</div>
               <img
                 className="hero-portrait"
-                src={`${basePath}/ithaka-hero.webp`}
+                src={`${basePath}/ithaka-hero-alpha.webp`}
                 alt=""
                 draggable={false}
                 onContextMenu={(e) => e.preventDefault()}
               />
-              <img className="hero-variant hero-variant-xray" src={`${basePath}/ithaka-hero-xray.webp`} alt="" draggable={false} />
-              <img className="hero-variant hero-variant-statue" src={`${basePath}/ithaka-hero-statue.webp`} alt="" draggable={false} />
+              <img className="hero-variant hero-variant-xray" src={`${basePath}/ithaka-hero-xray-alpha.webp`} alt="" draggable={false} />
+              <img className="hero-variant hero-variant-statue" src={`${basePath}/ithaka-hero-statue-alpha.webp`} alt="" draggable={false} />
               <div className="scan-square">
                 <span>SCULPT.EXE</span>
                 <span>RENDER PASS_07</span>
@@ -164,25 +153,7 @@ export default function Home() {
               <span className="side-index">001—ITH</span>
             </div>
 
-            <div className="hero-index">
-              <span>ISSUE INDEX</span>
-              <strong>01</strong>
-              <span>/ 04</span>
-            </div>
           </section>
-
-          <div className="ticker" aria-label="Текущие направления">
-            <div className="ticker-track">
-              <span>AVAILABLE FOR PROJECTS</span><i>✦</i>
-              <span>WEBSITES</span><i>✦</i>
-              <span>AUTOMATION</span><i>✦</i>
-              <span>AI SYSTEMS</span><i>✦</i>
-              <span>B2B LEAD GENERATION / NEXT</span><i>✦</i>
-              <span>AVAILABLE FOR PROJECTS</span><i>✦</i>
-              <span>WEBSITES</span><i>✦</i>
-              <span>AUTOMATION</span><i>✦</i>
-            </div>
-          </div>
         </div>
 
         {/* Панель 1 — Кейсы: сетка 2×2 */}
@@ -191,14 +162,14 @@ export default function Home() {
           <div className="cases-head">
             <div className="cases-title">
               <div className="cases-head-inner">
-                <h2>
+                <h2 className="glitch-chroma">
                   <GlitchText
                     mode="swap"
                     lines={[{ text: t.projectsSection.heading[0] }, { text: t.projectsSection.heading[1], accent: true }]}
                   />
                 </h2>
                 <div className="cases-kicker">
-                  <span className="section-index">/ 01</span>
+                  <span className="section-index">/ 02</span>
                   <p className="eyebrow">SELECTED WORK / PROOF OF PROCESS</p>
                 </div>
               </div>
@@ -219,6 +190,7 @@ export default function Home() {
                   </div>
                   <div className="case-card-mid">
                     <h3>{project.title}</h3>
+                    <strong className="case-card-proof">{project.proof}</strong>
                     <p>{project.description}</p>
                   </div>
                   <div className="case-card-meta">
@@ -252,14 +224,14 @@ export default function Home() {
           <CursorField mode="hold" />
           <div className="method-title">
             <div className="method-head">
-              <h2>
+              <h2 className="glitch-chroma">
                 <GlitchText
                   mode="swap"
                   lines={[{ text: t.method.heading[0] }, { text: t.method.heading[1], accent: true }]}
                 />
               </h2>
               <div className="method-kicker">
-                <span className="section-index">/ 02</span>
+                <span className="section-index">/ 03</span>
                 <p className="eyebrow">OPERATING PRINCIPLES</p>
               </div>
             </div>
@@ -279,7 +251,8 @@ export default function Home() {
             {capabilities.map((item, i) => {
               const open = openCap === i;
               return (
-                <article
+                <button
+                  type="button"
                   className={`capability${open ? " is-open" : ""}`}
                   key={item.number}
                   onClick={() => toggleCap(i)}
@@ -289,9 +262,21 @@ export default function Home() {
                   <h3>{item.title}</h3>
                   <p>{item.text}</p>
                   <i aria-hidden="true">+</i>
-                </article>
+                </button>
               );
             })}
+            </div>
+          </div>
+          <div className="ticker method-ticker" aria-label="Текущие направления">
+            <div className="ticker-track">
+              <span>AVAILABLE FOR PROJECTS</span><i>✦</i>
+              <span>WEBSITES</span><i>✦</i>
+              <span>AUTOMATION</span><i>✦</i>
+              <span>AI SYSTEMS</span><i>✦</i>
+              <span>B2B LEAD GENERATION / NEXT</span><i>✦</i>
+              <span>AVAILABLE FOR PROJECTS</span><i>✦</i>
+              <span>WEBSITES</span><i>✦</i>
+              <span>AUTOMATION</span><i>✦</i>
             </div>
           </div>
         </section>
@@ -304,10 +289,10 @@ export default function Home() {
           </div>
           <div className="about-copy">
             <div className="about-kicker">
-              <span className="section-index">/ 03</span>
+              <span className="section-index">/ 04</span>
               <p className="eyebrow">SERGEY TIMOSHENKO / BUILDER IN PROGRESS</p>
             </div>
-            <h2><GlitchText mode="scramble" lines={[{ text: t.about.heading }]} /></h2>
+            <h2 className="glitch-chroma"><GlitchText mode="scramble" lines={[{ text: t.about.heading }]} /></h2>
             <p className="about-lead">{t.about.lead}</p>
             <p>{t.about.paragraph}</p>
             <div className="about-links">
@@ -323,13 +308,13 @@ export default function Home() {
             <CursorField mode="hold" />
             <div className="contact-top">
               <span className="status-line"><span className="status-dot" /> OPEN CHANNEL</span>
-              <span>BUILD 01 / 2026</span>
+              <span>/ 05 · BUILD 01 / 2026</span>
             </div>
             <h2 className="glitch-chroma">
               {t.contact.heading[0]}<br />{t.contact.heading[1]}<br /><span className="h-accent">{t.contact.heading[2]}</span>
             </h2>
             <div className="contact-channels">
-              <a className="contact-action" href="https://telegram.me/Wand33rlust" target="_blank" rel="noreferrer">
+              <a className="contact-action contact-action-primary" href="https://telegram.me/Wand33rlust" target="_blank" rel="noreferrer">
                 <span>{t.contact.action}</span>
                 <em>@Wand33rlust</em>
                 <strong>↗</strong>

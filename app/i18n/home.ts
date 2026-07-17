@@ -9,7 +9,7 @@ export type HomeDict = {
     ctaSecondary: string;
   };
   projectsSection: { heading: string[]; intro: string };
-  projects: Array<{ title: string; description: string }>;
+  projects: Array<{ title: string; description: string; proof: string }>;
   method: { heading: string[] };
   capabilities: Array<{ title: string; text: string }>;
   about: { heading: string; lead: string; paragraph: string };
@@ -19,9 +19,9 @@ export type HomeDict = {
 const ru: HomeDict = {
   nav: { projects: "Проекты", method: "Метод", about: "Обо мне" },
   hero: {
-    lines: ["Из хаоса —", "в работающую", "систему"],
+    lines: ["Из хаоса —", "в рабочую", "систему"],
     paragraph:
-      "Проектирую и собираю сайты, автоматизации и AI-инструменты. Разбираю задачу, нахожу неоднозначности и довожу идею до рабочего результата.",
+      "Собираю сайты, автоматизации и AI-инструменты для задач, где важны логика, данные и быстрый запуск. Превращаю размытый запрос в рабочий результат, который можно показать клиенту или команде.",
     ctaPrimary: "Смотреть проекты",
     ctaSecondary: "Обсудить задачу",
   },
@@ -33,21 +33,25 @@ const ru: HomeDict = {
   projects: [
     {
       title: "Рейтинг-листы приёмной кампании",
+      proof: "≈1200 заявлений переведены в рейтинг-листы",
       description:
         "Помог Колледжу высоких технологий при БГТУ им. В. Г. Шухова собрать рейтинг-листы из выгрузки примерно на 1200 заявлений: разнос данных, сохранение ручных правок и обработка нестандартных статусов.",
     },
     {
       title: "Онлайн-запись в медицинский центр",
+      proof: "Полный сценарий записи от процедуры до истории визитов",
       description:
         "Дипломное веб-приложение: специалисты и процедуры, запись на приём, личный кабинет, история визитов и связанная бизнес-логика.",
     },
     {
       title: "Сайт компании медицинского ПО",
+      proof: "Живой каталог продуктов с клиентскими итерациями",
       description:
         "Сайт-визитка с каталогом продуктов: сбор материалов, постановка задачи, визуальная система под фирменный стиль и итерации с заказчиком.",
     },
     {
       title: "Личная агентная инфраструктура",
+      proof: "Ежедневные сводки, Telegram-доставка и база знаний",
       description:
         "Ежедневные сводки, Telegram-доставка, источники данных и база знаний. Полигон для изучения AI-агентов на собственных процессах.",
     },
@@ -79,7 +83,7 @@ const en: HomeDict = {
   hero: {
     lines: ["Out of chaos —", "into a working", "system"],
     paragraph:
-      "I design and build websites, automations, and AI tools. I break down the task, surface the ambiguities, and carry the idea through to a working result.",
+      "I build websites, automations, and AI tools for tasks where logic, data, and launch speed matter. I turn a vague request into a working result that can be shown to a client or a team.",
     ctaPrimary: "View projects",
     ctaSecondary: "Discuss a project",
   },
@@ -91,21 +95,25 @@ const en: HomeDict = {
   projects: [
     {
       title: "Admission rating sheets",
+      proof: "~1,200 applications reshaped into rating sheets",
       description:
         "Helped the College of High Technologies at BSTU named after V. G. Shukhov build rating sheets from a ~1,200-application export: reshaping data, preserving manual edits, and handling non-standard statuses.",
     },
     {
       title: "Online booking for a medical center",
+      proof: "Full booking flow from procedure to visit history",
       description:
         "Capstone web app: specialists and procedures, appointment booking, a personal account, visit history, and the business logic behind it.",
     },
     {
       title: "Website for a medical software company",
+      proof: "Live product catalog with client-side iteration",
       description:
         "A business-card site with a product catalog: gathering materials, framing the task, a visual system on brand, and iterating with the client.",
     },
     {
       title: "Personal agent infrastructure",
+      proof: "Daily digests, Telegram delivery, and a knowledge base",
       description:
         "Daily digests, Telegram delivery, data sources, and a knowledge base. A testbed for learning AI agents on my own workflows.",
     },

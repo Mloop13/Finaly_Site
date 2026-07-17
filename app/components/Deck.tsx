@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 // useLayoutEffect на сервере ругается — на клиенте берём его (снимает мигание до включения дека),
 // на сервере откатываемся на useEffect.
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const pad = (n: number) => String(n).padStart(2, "0");
+const pageLabels = ["MAIN/ITHAKA", "PROJECTS", "METHOD", "ABOUT", "CONTACT"];
 
 /**
  * Горизонтальный дек: каждая прямая дочерняя панель (`.deck-panel`) = один экран.
@@ -24,16 +26,25 @@ export function Deck({ children, hint = "листай" }: { children: ReactNode;
   const countRef = useRef(0);
   const enabledRef = useRef(false);
   const lockRef = useRef(false);
-  indexRef.current = index;
-  countRef.current = count;
-  enabledRef.current = enabled;
 
-  const go = (next: number) => {
+  useEffect(() => {
+    indexRef.current = index;
+  }, [index]);
+
+  useEffect(() => {
+    countRef.current = count;
+  }, [count]);
+
+  useEffect(() => {
+    enabledRef.current = enabled;
+  }, [enabled]);
+
+  const go = useCallback((next: number) => {
     const max = countRef.current - 1;
     const clamped = next < 0 ? 0 : next > max ? max : next;
     if (clamped === indexRef.current) return;
     setIndex(clamped);
-  };
+  }, []);
 
   // Подсчёт панелей + адаптивное включение дека (desktop + разрешённое движение).
   useIsomorphicLayoutEffect(() => {
@@ -150,9 +161,36 @@ export function Deck({ children, hint = "листай" }: { children: ReactNode;
       window.removeEventListener("touchend", onTouchEnd);
       document.removeEventListener("click", onClick);
     };
-  }, []);
+  }, [go]);
 
   const style = enabled ? ({ "--deck-x": `-${index * 100}vw` } as CSSProperties) : undefined;
+  const controlsStyle = {
+    "--deck-fill": count > 1 ? `${((index + 1) / count) * 100}%` : "0%",
+  } as CSSProperties;
+  const headerSlot = typeof document !== "undefined" ? document.getElementById("deck-header-controls") : null;
+  const headerControls =
+    enabled && count > 1 ? (
+      <div className={`deck-header-controls${index === count - 1 ? " is-complete" : ""}`} style={controlsStyle}>
+        <nav className="deck-nav" aria-label="Навигация по страницам">
+          {Array.from({ length: count }).map((_, i) => {
+            const stateClass = `${i <= index ? " is-filled" : ""}${i === index ? " is-active" : ""}`;
+            return (
+              <button
+                key={i}
+                type="button"
+                className={`deck-dot${stateClass}`}
+                aria-label={`Страница ${i + 1}`}
+                aria-current={i === index}
+                onClick={() => go(i)}
+              >
+                <span>{pad(i + 1)}</span>
+                {pageLabels[i] ?? `PAGE ${pad(i + 1)}`}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+    ) : null;
 
   return (
     <div className={`deck${enabled ? " is-enabled" : ""}`} style={style}>
@@ -160,23 +198,10 @@ export function Deck({ children, hint = "листай" }: { children: ReactNode;
         {children}
       </div>
 
+      {headerControls && (headerSlot ? createPortal(headerControls, headerSlot) : headerControls)}
+
       {enabled && count > 1 && (
         <>
-          <nav className="deck-nav" aria-label="Навигация по слайдам">
-            {Array.from({ length: count }).map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                className={`deck-dot${i === index ? " is-active" : ""}`}
-                aria-label={`Слайд ${i + 1}`}
-                aria-current={i === index}
-                onClick={() => go(i)}
-              />
-            ))}
-          </nav>
-          <div className="deck-progress" aria-hidden="true">
-            <strong>{index === 0 ? "—" : pad(index)}</strong> / {pad(count - 1)}
-          </div>
           <div className={`deck-hint${index === 0 ? "" : " is-hidden"}`} aria-hidden="true">
             {hint} <span>→</span>
           </div>

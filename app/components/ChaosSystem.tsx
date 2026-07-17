@@ -12,6 +12,11 @@ import { useEffect, useRef, useState } from "react";
 const HINT_SANDBOX = "веди курсором — лепи Δ";
 const HINT_PLAY = "собери Δ целиком";
 const HINT_SOLVED = "Δ · система собрана";
+const HELP_MESSAGES = [
+  "держи курсор ближе к светлому контуру",
+  "веди по ребрам Δ, точки фиксируются сами",
+  "начни с вершины, потом спускайся по сторонам",
+];
 
 export function ChaosSystem() {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -20,6 +25,7 @@ export function ChaosSystem() {
   const playRef = useRef(false);
   const resetRef = useRef<() => void>(() => {});
   const [playOn, setPlayOn] = useState(false);
+  const [toast, setToast] = useState("");
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -32,7 +38,7 @@ export function ChaosSystem() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const N = 110;
 
-    type P = { hx: number; hy: number; cx: number; cy: number; x: number; y: number; ph: number; order: number };
+    type P = { hx: number; hy: number; cx: number; cy: number; x: number; y: number; ph: number; order: number; auto: number };
     let particles: P[] = [];
     let W = 0;
     let H = 0;
@@ -41,6 +47,15 @@ export function ChaosSystem() {
     let raf = 0;
     let visible = false;
     let solved = false;
+    let lastHelpAt = 0;
+    let helpIndex = 0;
+    let toastTimer = 0;
+
+    const showToast = (text: string) => {
+      window.clearTimeout(toastTimer);
+      setToast(text);
+      toastTimer = window.setTimeout(() => setToast(""), 4200);
+    };
 
     /**
      * Точки цели — равносторонний Δ, построенный геометрией, а не шрифтом:
@@ -97,6 +112,7 @@ export function ChaosSystem() {
           y: prev ? prev.y : Math.random() * H,
           ph: Math.random() * Math.PI * 2,
           order: prev ? prev.order : 0,
+          auto: prev ? prev.auto : 0,
         });
       }
       particles = next;
@@ -138,10 +154,16 @@ export function ChaosSystem() {
         const dcy = p.cy + Math.sin(ts / 1600 + p.ph) * (H * 0.035);
         let want = 0;
         if (solved) want = 1;
-        else if (mouse.active) {
-          const d = Math.hypot(mouse.sx - p.hx, mouse.sy - p.hy);
-          const raw = 1 - Math.min(1, d / rad);
-          want = raw * raw * (3 - 2 * raw); // smoothstep: мягкий край радиуса вместо резкой границы
+        else {
+          if (playRef.current && p.auto > 0) {
+            p.auto = Math.max(0, p.auto - 0.012);
+            want = Math.max(want, 0.86);
+          }
+          if (mouse.active) {
+            const d = Math.hypot(mouse.sx - p.hx, mouse.sy - p.hy);
+            const raw = 1 - Math.min(1, d / rad);
+            want = Math.max(want, raw * raw * (3 - 2 * raw)); // smoothstep: мягкий край радиуса вместо резкой границы
+          }
         }
         // притяжение мягкое; в игре собранное держится, в песочнице — плавно тает
         const ease = want > p.order ? 0.12 : playRef.current ? 0 : 0.028;
@@ -160,10 +182,18 @@ export function ChaosSystem() {
         }
       }
 
+      if (playRef.current && !solved && particles.length && ts - lastHelpAt > 9000 && ordered / particles.length < 0.93) {
+        lastHelpAt = ts;
+        showToast(HELP_MESSAGES[helpIndex % HELP_MESSAGES.length]);
+        helpIndex++;
+      }
+
       // защёлкивается только в режиме игры — песочница это свободная лепка
       if (playRef.current && !solved && particles.length && ordered / particles.length >= 0.93) {
         solved = true;
         wrap.classList.add("is-solved");
+        window.clearTimeout(toastTimer);
+        setToast("");
         const hint = wrap.querySelector(".chaos-hint");
         if (hint) hint.textContent = HINT_SOLVED;
       }
@@ -175,14 +205,20 @@ export function ChaosSystem() {
     };
 
     const doReset = () => {
-      for (const p of particles) {
+      const starterCount = playRef.current ? Math.min(20, particles.length) : 0;
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         p.order = 0;
+        p.auto = i < starterCount ? 1 : 0;
         p.cx = Math.random() * W;
         p.cy = Math.random() * H;
         p.x = p.cx;
         p.y = p.cy;
       }
       solved = false;
+      lastHelpAt = performance.now();
+      window.clearTimeout(toastTimer);
+      setToast("");
       wrap.classList.remove("is-solved");
       const hint = wrap.querySelector(".chaos-hint");
       if (hint) hint.textContent = playRef.current ? HINT_PLAY : HINT_SANDBOX;
@@ -234,6 +270,7 @@ export function ChaosSystem() {
 
     return () => {
       cancelAnimationFrame(raf);
+      window.clearTimeout(toastTimer);
       ro.disconnect();
       io.disconnect();
       wrap.removeEventListener("pointermove", onMove);
@@ -265,6 +302,7 @@ export function ChaosSystem() {
         </button>
       </div>
       <span className="chaos-hint">{HINT_SANDBOX}</span>
+      <span className={`chaos-toast${toast ? " is-visible" : ""}`}>{toast}</span>
     </div>
   );
 }
