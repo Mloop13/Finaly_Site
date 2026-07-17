@@ -52,6 +52,11 @@ export function ChaosSystem() {
     let helpIndex = 0;
     let toastTimer = 0;
 
+    const setPageFieldPaused = (paused: boolean) => {
+      document.body.classList.toggle("chaos-game-focus", paused);
+      window.dispatchEvent(new Event("chaos-game-focus-change"));
+    };
+
     const showToast = (text: string, duration = 4200) => {
       window.clearTimeout(toastTimer);
       setToast(text);
@@ -246,7 +251,9 @@ export function ChaosSystem() {
       mouse.y = -9999;
       mouse.sx = -9999;
       mouse.sy = -9999;
+      setPageFieldPaused(false);
     };
+    const onEnter = () => setPageFieldPaused(true);
 
     build();
 
@@ -265,14 +272,17 @@ export function ChaosSystem() {
     );
     io.observe(wrap);
 
+    wrap.addEventListener("pointerenter", onEnter);
     wrap.addEventListener("pointermove", onMove);
     wrap.addEventListener("pointerleave", onLeave);
 
     return () => {
       cancelAnimationFrame(raf);
       window.clearTimeout(toastTimer);
+      setPageFieldPaused(false);
       ro.disconnect();
       io.disconnect();
+      wrap.removeEventListener("pointerenter", onEnter);
       wrap.removeEventListener("pointermove", onMove);
       wrap.removeEventListener("pointerleave", onLeave);
     };

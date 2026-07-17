@@ -80,6 +80,11 @@ export function CursorField({
         raf = 0;
         return;
       }
+      if (document.body.classList.contains("chaos-game-focus")) {
+        ctx.clearRect(0, 0, W, H);
+        raf = 0;
+        return;
+      }
       pressure += ((pressed || !hold ? 1 : 0) - pressure) * 0.12;
       // погасло и никто не жмёт — стоп до следующего нажатия, кадры зря не крутим
       if (hold && !pressed && pressure < 0.01) {
@@ -129,6 +134,9 @@ export function CursorField({
     const start = () => {
       if (!raf && visible) raf = requestAnimationFrame(frame);
     };
+    const onChaosFocusChange = () => {
+      if (!document.body.classList.contains("chaos-game-focus")) start();
+    };
 
     const onMove = (e: PointerEvent) => {
       const rect = wrap.getBoundingClientRect();
@@ -175,6 +183,7 @@ export function CursorField({
       host.addEventListener("pointerdown", onDown);
       window.addEventListener("pointerup", onUp);
     }
+    window.addEventListener("chaos-game-focus-change", onChaosFocusChange);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -184,6 +193,7 @@ export function CursorField({
       host.removeEventListener("pointerleave", onLeave);
       host.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("chaos-game-focus-change", onChaosFocusChange);
     };
   }, [radius, mode]);
 

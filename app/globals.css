@@ -270,8 +270,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .hero-variant-statue { animation: squarePassStatue 12s linear infinite; }
 
 /* --- Фоновое поле знаков под курсором (панели hero / метод / обо мне / контакт) --- */
-.cursor-field { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.cursor-field { position: absolute; inset: 0; z-index: 0; pointer-events: none; transition: opacity .22s ease; }
 .cursor-field canvas { display: block; width: 100%; height: 100%; }
+body.chaos-game-focus .cursor-field { opacity: 0; }
 /* в hero поле уходит в самый низ стопки: ITHAKA-подложка остаётся поверх него */
 .hero .cursor-field { z-index: -1; }
 /* контент панелей поднимаем над полем — иначе абсолютный canvas накрывает текст */
@@ -338,7 +339,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
   font: 600 10px var(--font-geist-mono), monospace; letter-spacing: .15em;
   animation: ticker 28s linear infinite;
 }
-.method-ticker { grid-column: 1 / -1; margin: clamp(30px, 4vw, 54px) -3vw 0; border-top: 1px solid var(--line); }
+.method-ticker {
+  grid-column: 1 / -1;
+  width: 100vw;
+  margin: clamp(30px, 4vw, 54px) calc(50% - 50vw) 0;
+  border-top: 1px solid var(--line);
+}
 
 .section { padding: clamp(88px, 10vw, 150px) 3vw; }
 .section-index { color: var(--muted); font-size: 11px; }
@@ -766,7 +772,7 @@ body.deck-on .site-header > nav { display: none; }
 .deck.is-enabled .method-head { width: min-content; }
 .deck.is-enabled .capability { padding: clamp(14px, 2.4vh, 26px) 12px; }
 .deck.is-enabled .capability-list { min-height: min(52vh, 400px); }
-.deck.is-enabled .method-ticker { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; border-bottom: 0; }
+.deck.is-enabled .method-ticker { position: absolute; left: 50%; right: auto; bottom: 0; width: 100vw; margin: 0; transform: translateX(-50%); border-bottom: 0; }
 
 .deck.is-enabled .about { align-content: center; align-items: start; }
 .deck.is-enabled .about-art { min-height: 0; height: min(64vh, 480px); }

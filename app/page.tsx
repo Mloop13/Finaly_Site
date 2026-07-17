@@ -280,6 +280,11 @@ export default function Home() {
               <span>AVAILABLE FOR PROJECTS</span><i>✦</i>
               <span>WEBSITES</span><i>✦</i>
               <span>AUTOMATION</span><i>✦</i>
+              <span>AI SYSTEMS</span><i>✦</i>
+              <span>B2B LEAD GENERATION / NEXT</span><i>✦</i>
+              <span>AVAILABLE FOR PROJECTS</span><i>✦</i>
+              <span>WEBSITES</span><i>✦</i>
+              <span>AUTOMATION</span><i>✦</i>
             </div>
           </div>
         </section>
