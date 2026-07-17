@@ -7,7 +7,6 @@ import { LanguageToggle } from "./components/LanguageToggle";
 import { Deck } from "./components/Deck";
 import { ChaosSystem } from "./components/ChaosSystem";
 import { GlitchText } from "./components/GlitchText";
-import { ScanPortrait } from "./components/ScanPortrait";
 import { CursorField } from "./components/CursorField";
 
 const projectsMeta = [
@@ -142,7 +141,21 @@ export default function Home() {
 
             <div className="hero-art" aria-hidden="true">
               <div className="hero-chevron">›</div>
-              <ScanPortrait basePath={basePath} />
+              <img
+                className="hero-portrait"
+                src={`${basePath}/ithaka-hero.webp`}
+                alt=""
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
+              />
+              <img className="hero-variant hero-variant-xray" src={`${basePath}/ithaka-hero-xray.webp`} alt="" draggable={false} />
+              <img className="hero-variant hero-variant-statue" src={`${basePath}/ithaka-hero-statue.webp`} alt="" draggable={false} />
+              <div className="scan-square">
+                <span>SCULPT.EXE</span>
+                <span>RENDER PASS_07</span>
+                <span>STATUS: OK</span>
+              </div>
+              <div className="crosshair">+</div>
             </div>
 
             <div className="hero-side" aria-hidden="true">

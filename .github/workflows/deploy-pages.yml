@@ -25,7 +25,9 @@ jobs:
       - run: npm install
       - run: npm run build
         env:
-          NEXT_PUBLIC_BASE_PATH: /My_site
+          # basePath = имя репозитория: на Pages сайт лежит по /<repo>/.
+          # Берём из контекста, чтобы сборка не ломалась при переезде в другой репозиторий.
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
       - uses: actions/configure-pages@v5
         with:
           enablement: true
