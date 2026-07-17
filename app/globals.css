@@ -43,6 +43,7 @@ a { color: inherit; text-decoration: none; }
 button, a { -webkit-tap-highlight-color: transparent; }
 
 .site-header {
+  --header-actions-space: clamp(248px, 23vw, 360px);
   height: 76px;
   padding: 0;
   display: block;
@@ -75,7 +76,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
   min-width: 0;
   transform: translateY(-50%);
 }
-.deck-header-slot { display: flex; align-items: stretch; min-width: 0; width: 100%; height: 100%; }
+.deck-header-slot {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  width: calc(100% - var(--header-actions-space));
+  height: 100%;
+}
 /* статус переехал из hero в шапку — живёт рядом с языком и CTA */
 .header-system { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .header-status { display: inline-flex; align-items: center; font-size: 8px; color: var(--muted); white-space: nowrap; letter-spacing: .16em; }
@@ -227,9 +234,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
   z-index: 1;
   right: clamp(22px, 4.5vw, 92px);
   top: clamp(22px, 5vh, 62px);
-  width: clamp(520px, 48vw, 980px);
-  height: min(88vh, 920px);
-  max-height: calc(100% - 28px);
+  width: min(48vw, 70.4vh, 736px);
+  min-width: 520px;
+  aspect-ratio: 4 / 5;
   /* подложки нет: слои портрета прозрачные и ложатся прямо на фон панели */
   animation: slideIn .9s .08s ease both;
 }
@@ -250,10 +257,17 @@ button, a { -webkit-tap-highlight-color: transparent; }
   position: absolute;
   inset: 0;
   z-index: 3;
+  clip-path: polygon(
+    var(--scan-left) var(--scan-top),
+    calc(var(--scan-left) + var(--scan-size)) var(--scan-top),
+    calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)),
+    var(--scan-left) calc(var(--scan-top) + var(--scan-size))
+  );
+  opacity: 0;
   pointer-events: none;
 }
-.hero-variant-xray { animation: squareXray 12s linear infinite; }
-.hero-variant-statue { animation: squareStatue 12s linear infinite; }
+.hero-variant-xray { animation: squarePassXray 12s linear infinite; }
+.hero-variant-statue { animation: squarePassStatue 12s linear infinite; }
 
 /* --- Фоновое поле знаков под курсором (панели hero / метод / обо мне / контакт) --- */
 .cursor-field { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
@@ -297,7 +311,14 @@ button, a { -webkit-tap-highlight-color: transparent; }
   box-shadow: 0 0 15px white;
   animation: scan 12s linear infinite;
 }
-.crosshair { position: absolute; left: 54%; top: 31%; z-index: 5; font: 24px var(--font-geist-mono); }
+.crosshair {
+  position: absolute;
+  left: calc(var(--scan-left) + var(--scan-size) / 2);
+  top: calc(var(--scan-top) + var(--scan-size) / 2);
+  z-index: 5;
+  font: 24px var(--font-geist-mono);
+  transform: translate(-50%, -50%);
+}
 .hero-side {
   position: absolute;
   z-index: 5;
@@ -523,6 +544,14 @@ footer p:last-child { justify-self: end; }
   64%, 66% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
   97%, 100% { clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
 }
+@keyframes squarePassXray {
+  0%, 4%, 58%, 100% { opacity: 0; }
+  9%, 51% { opacity: .96; }
+}
+@keyframes squarePassStatue {
+  0%, 58%, 100% { opacity: 0; }
+  64%, 94% { opacity: .96; }
+}
 @keyframes ticker { to{transform:translateX(-50%)} }
 @keyframes noteGlow { 0% { color: var(--muted); } 16.66% { color: var(--mint); } 33.33%, 100% { color: var(--muted); } }
 
@@ -568,29 +597,7 @@ footer p:last-child { justify-self: end; }
   85% { opacity: .5; transform: translate(-5px,0); clip-path: inset(56% 0 30% 0); }
   89% { opacity: .7; transform: translate(6px,-1px); clip-path: inset(80% 0 0 0); }
 }
-.glitch-h { will-change: transform; }
-.glitch-h:hover { animation: glitchSkew .42s ease 1; }
-@keyframes glitchSkew {
-  0% { transform: none; clip-path: none; }
-  18% { transform: translate(-2px,1px) skewX(-3deg); }
-  36% { transform: translate(3px,-1px); clip-path: inset(8% 0 34% 0); }
-  54% { transform: translate(-1px,0) skewX(2deg); clip-path: inset(38% 0 10% 0); }
-  72% { transform: translate(2px,1px); }
-  100% { transform: none; clip-path: none; }
-}
-/* контакт — хроматический сдвиг (RGB-разъезд) сам проигрывается каждые 3.5 с;
-   сам сбой занимает ~0.5 с в конце цикла, остальное время заголовок в покое */
-.glitch-chroma { animation: chromaLoop 3.5s linear infinite; }
-/* без clip-path: он срезал до половины заголовка — читалось как поломка вёрстки,
-   а не как сбой. Сдвиг + хроматический разъезд дают тот же эффект без потери текста. */
-@keyframes chromaLoop {
-  0%, 85%, 100% { text-shadow: none; transform: none; }
-  86% { text-shadow: -7px 0 rgba(1,222,130,.95), 7px 0 rgba(53,230,255,.85); transform: translateX(-4px) skewX(-1.5deg); }
-  89% { text-shadow: 8px 0 rgba(1,222,130,.9), -8px 0 rgba(53,230,255,.8); transform: translateX(4px) skewX(1deg); }
-  92% { text-shadow: -5px 1px 0 rgba(1,222,130,.9), 5px -1px rgba(241,240,234,.7); transform: translateX(-2px); }
-  95% { text-shadow: 4px 0 rgba(53,230,255,.85), -4px 0 rgba(1,222,130,.85); transform: none; }
-  98% { text-shadow: -2px 0 rgba(1,222,130,.6), 2px 0 rgba(53,230,255,.5); }
-}
+.glitch-h { will-change: contents; }
 /* строки-строки внутри JS-glitch заголовков (scramble / swap) */
 .glitch-line { display: block; }
 
@@ -600,8 +607,10 @@ footer p:last-child { justify-self: end; }
   .hero-art {
     right: clamp(-80px, -8vw, -24px);
     top: clamp(44px, 6vh, 70px);
-    width: clamp(520px, 68vw, 760px);
-    height: min(78vh, 760px);
+    width: min(68vw, 62.4vh, 760px);
+    min-width: min(520px, 72vw);
+    aspect-ratio: 4 / 5;
+    height: auto;
     opacity: .8;
   }
   .hero-copy { width: 52vw; }
@@ -626,8 +635,10 @@ footer p:last-child { justify-self: end; }
     --scan-left: 34%;
     --scan-top: 18%;
     --scan-size: clamp(104px, 28vw, 128px);
+    min-width: 0;
     width: clamp(390px, 104vw, 520px);
-    height: clamp(320px, 48svh, 450px);
+    aspect-ratio: 4 / 5;
+    height: auto;
     right: clamp(-156px, -31vw, -126px);
     top: clamp(66px, 12svh, 104px);
     opacity: .5;

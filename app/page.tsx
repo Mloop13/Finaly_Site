@@ -90,6 +90,9 @@ export default function Home() {
         <div id="deck-header-controls" className="deck-header-slot" aria-live="polite" />
         <div className="header-actions">
           <LanguageToggle />
+          <a className="header-cta" href="https://telegram.me/Wand33rlust" target="_blank" rel="noreferrer">
+            Telegram <span>↗</span>
+          </a>
         </div>
       </header>
 
@@ -110,12 +113,11 @@ export default function Home() {
 
             <div className="hero-copy">
               <div className="eyebrow">IT × HAKA / THE WAY TO A WORKING SYSTEM</div>
-              <h1 className="glitch-h glitch-chroma" ref={headingRef}>
-                {t.hero.lines.map((line, i) => (
-                  <span key={line} className={i === t.hero.lines.length - 1 ? "h-accent" : undefined}>
-                    {line}
-                  </span>
-                ))}
+              <h1 className="glitch-h" ref={headingRef}>
+                <GlitchText
+                  mode="scramble"
+                  lines={t.hero.lines.map((line, i) => ({ text: line, accent: i === t.hero.lines.length - 1 }))}
+                />
               </h1>
               <p>{t.hero.paragraph}</p>
               <div className="hero-actions">
@@ -162,9 +164,9 @@ export default function Home() {
           <div className="cases-head">
             <div className="cases-title">
               <div className="cases-head-inner">
-                <h2 className="glitch-chroma">
+                <h2>
                   <GlitchText
-                    mode="swap"
+                    mode="scramble"
                     lines={[{ text: t.projectsSection.heading[0] }, { text: t.projectsSection.heading[1], accent: true }]}
                   />
                 </h2>
@@ -224,9 +226,9 @@ export default function Home() {
           <CursorField mode="hold" />
           <div className="method-title">
             <div className="method-head">
-              <h2 className="glitch-chroma">
+              <h2>
                 <GlitchText
-                  mode="swap"
+                  mode="scramble"
                   lines={[{ text: t.method.heading[0] }, { text: t.method.heading[1], accent: true }]}
                 />
               </h2>
@@ -292,7 +294,7 @@ export default function Home() {
               <span className="section-index">/ 04</span>
               <p className="eyebrow">SERGEY TIMOSHENKO / BUILDER IN PROGRESS</p>
             </div>
-            <h2 className="glitch-chroma"><GlitchText mode="scramble" lines={[{ text: t.about.heading }]} /></h2>
+            <h2><GlitchText mode="scramble" lines={[{ text: t.about.heading }]} /></h2>
             <p className="about-lead">{t.about.lead}</p>
             <p>{t.about.paragraph}</p>
             <div className="about-links">
@@ -310,8 +312,11 @@ export default function Home() {
               <span className="status-line"><span className="status-dot" /> OPEN CHANNEL</span>
               <span>/ 05 · BUILD 01 / 2026</span>
             </div>
-            <h2 className="glitch-chroma">
-              {t.contact.heading[0]}<br />{t.contact.heading[1]}<br /><span className="h-accent">{t.contact.heading[2]}</span>
+            <h2>
+              <GlitchText
+                mode="scramble"
+                lines={[{ text: t.contact.heading[0] }, { text: t.contact.heading[1] }, { text: t.contact.heading[2], accent: true }]}
+              />
             </h2>
             <div className="contact-channels">
               <a className="contact-action contact-action-primary" href="https://telegram.me/Wand33rlust" target="_blank" rel="noreferrer">
