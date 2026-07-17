@@ -107,11 +107,14 @@ export default function Home() {
             <div className="hero-art" aria-hidden="true">
               <div className="hero-chevron">›</div>
               <img
+                className="hero-portrait"
                 src={`${basePath}/ithaka-hero.webp`}
                 alt=""
                 draggable={false}
                 onContextMenu={(e) => e.preventDefault()}
               />
+              <img className="hero-variant hero-variant-xray" src={`${basePath}/ithaka-hero-xray.webp`} alt="" draggable={false} />
+              <img className="hero-variant hero-variant-statue" src={`${basePath}/ithaka-hero-statue.webp`} alt="" draggable={false} />
               <div className="scan-square">
                 <span>SCULPT.EXE</span>
                 <span>RENDER PASS_07</span>
