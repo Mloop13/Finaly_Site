@@ -283,28 +283,13 @@ body.chaos-game-focus .cursor-field { opacity: 0; }
   overflow: hidden;
   isolation: isolate;
 }
-.scan-layer-mask {
+.scan-window canvas {
   position: absolute;
   inset: 0;
   z-index: 1;
-  overflow: hidden;
-  will-change: clip-path, opacity;
-}
-.scan-layer {
-  position: absolute;
-  left: -38.0137%;
-  top: -23.5445%;
-  z-index: 1;
-  width: 171.2329%;
-  height: 214.0411%;
-  object-fit: contain;
-  object-position: center bottom;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-.scan-window .scan-layer {
-  max-width: none;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 .scan-tint {
   position: absolute;
@@ -319,9 +304,9 @@ body.chaos-game-focus .cursor-field { opacity: 0; }
   left: 0;
   right: 0;
   top: 0;
-  height: 3px;
+  height: 4px;
   background: var(--paper);
-  box-shadow: 0 0 15px rgba(255,255,255,.7);
+  box-shadow: 0 0 18px rgba(255,255,255,.9);
   will-change: transform;
   pointer-events: none;
 }

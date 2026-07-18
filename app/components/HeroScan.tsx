@@ -1,6 +1,6 @@
 "use client";
 
-import { type CSSProperties, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const LAYERS = [
   "ithaka-normal-v5.png",
@@ -9,83 +9,136 @@ const LAYERS = [
   "ithaka-digital-v5.png",
 ];
 
-const layerStyle = {
-  position: "absolute",
-  left: "-38.0137%",
-  top: "-23.5445%",
-  width: "171.2329%",
-  height: "214.0411%",
-  maxWidth: "none",
-  objectFit: "contain",
-  objectPosition: "center bottom",
-  pointerEvents: "none",
-  userSelect: "none",
-} satisfies CSSProperties;
-
 type HeroScanProps = {
   basePath: string;
 };
 
 export function HeroScan({ basePath }: HeroScanProps) {
-  const rootRef = useRef<HTMLDivElement>(null);
+  const scannerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const root = rootRef.current;
+    const scanner = scannerRef.current;
+    const canvas = canvasRef.current;
     const line = lineRef.current;
-    if (!root || !line) return;
+    const portrait = scanner?.closest(".hero-art") as HTMLElement | null;
+    const ctx = canvas?.getContext("2d");
 
-    const masks = Array.from(root.querySelectorAll<HTMLElement>(".scan-layer-mask"));
+    if (!scanner || !canvas || !line || !portrait || !ctx) return;
+
+    const images = LAYERS.map((name) => {
+      const image = new Image();
+      image.decoding = "async";
+      image.src = `${basePath}/${name}`;
+      return image;
+    });
+
     let raf = 0;
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let start = 0;
+
+    const geometry = () => {
+      const rect = scanner.getBoundingClientRect();
+      dpr = window.devicePixelRatio || 1;
+      width = rect.width;
+      height = rect.height;
+      canvas.width = Math.max(1, Math.round(width * dpr));
+      canvas.height = Math.max(1, Math.round(height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const draw = (image: HTMLImageElement | undefined) => {
+      if (!image?.naturalWidth || !image.naturalHeight || !width || !height) return false;
+
+      const portraitRect = portrait.getBoundingClientRect();
+      const scannerRect = scanner.getBoundingClientRect();
+      if (!portraitRect.width || !portraitRect.height || !scannerRect.width || !scannerRect.height) return false;
+
+      const sx = ((scannerRect.left - portraitRect.left) / portraitRect.width) * image.naturalWidth;
+      const sy = ((scannerRect.top - portraitRect.top) / portraitRect.height) * image.naturalHeight;
+      const sw = (scannerRect.width / portraitRect.width) * image.naturalWidth;
+      const sh = (scannerRect.height / portraitRect.height) * image.naturalHeight;
+
+      ctx.drawImage(image, sx, sy, sw, sh, 0, 0, width, height);
+      return true;
+    };
+
+    const drawClipped = (
+      image: HTMLImageElement | undefined,
+      x: number,
+      y: number,
+      rectWidth: number,
+      rectHeight: number,
+    ) => {
+      if (rectWidth <= 0 || rectHeight <= 0) return true;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, rectWidth, rectHeight);
+      ctx.clip();
+      const drawn = draw(image);
+      ctx.restore();
+
+      return drawn;
+    };
 
     const frame = (now: number) => {
-      const height = root.getBoundingClientRect().height;
-      const duration = 12000;
-      const segment = duration / LAYERS.length;
-      const cycle = now % duration;
-      const phase = Math.floor(cycle / segment);
-      const progress = (cycle - phase * segment) / segment;
-      const next = (phase + 1) % LAYERS.length;
+      if (!width || !height || !images.length || images.some((image) => !image.complete || !image.naturalWidth)) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
+
+      const phaseDuration = 2600;
+      const t = (now - start) % (phaseDuration * LAYERS.length);
+      const phase = Math.floor(t / phaseDuration) % images.length;
+      const progress = (t % phaseDuration) / phaseDuration;
       const down = phase % 2 === 0;
       const y = down ? progress * height : (1 - progress) * height;
-      const nextClip = down ? `inset(0 0 ${height - y}px 0)` : `inset(${y}px 0 0 0)`;
+      const next = (phase + 1) % images.length;
+      const currentImage = images[phase];
+      const nextImage = images[next];
 
-      masks.forEach((mask, index) => {
-        if (index === phase) {
-          mask.style.opacity = "1";
-          mask.style.clipPath = "inset(0 0 0 0)";
-          mask.style.zIndex = "1";
-          return;
-        }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+      if (!currentImage?.naturalWidth || !nextImage?.naturalWidth) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
 
-        if (index === next) {
-          mask.style.opacity = "1";
-          mask.style.clipPath = nextClip;
-          mask.style.zIndex = "2";
-          return;
-        }
-
-        mask.style.opacity = "0";
-        mask.style.clipPath = "inset(0 0 100% 0)";
-        mask.style.zIndex = "0";
-      });
+      if (down) {
+        drawClipped(nextImage, 0, 0, width, y);
+        drawClipped(currentImage, 0, y, width, height - y);
+      } else {
+        drawClipped(currentImage, 0, 0, width, y);
+        drawClipped(nextImage, 0, y, width, height - y);
+      }
 
       line.style.transform = `translate3d(0, ${y}px, 0) translateY(-50%)`;
       raf = requestAnimationFrame(frame);
     };
 
-    raf = requestAnimationFrame(frame);
+    const resizeObserver = new ResizeObserver(geometry);
+    resizeObserver.observe(portrait);
+    resizeObserver.observe(scanner);
 
-    return () => cancelAnimationFrame(raf);
-  }, []);
+    Promise.allSettled(images.map((image) => image.decode())).then(() => {
+      geometry();
+      start = performance.now();
+      raf = requestAnimationFrame(frame);
+    });
+
+    return () => {
+      cancelAnimationFrame(raf);
+      resizeObserver.disconnect();
+    };
+  }, [basePath]);
 
   return (
-    <div className="scan-window" ref={rootRef}>
-      {LAYERS.map((name, index) => (
-        <div className="scan-layer-mask" key={name} style={{ opacity: index === 0 ? 1 : 0 }}>
-          <img className="scan-layer" src={`${basePath}/${name}`} alt="" draggable={false} style={layerStyle} />
-        </div>
-      ))}
+    <div className="scan-window" ref={scannerRef}>
+      <canvas ref={canvasRef} />
       <div className="scan-tint" />
       <div className="scan-line" ref={lineRef} />
       <div className="scan-cross">+</div>
