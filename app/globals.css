@@ -227,9 +227,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .text-link:hover { color: var(--mint); }
 
 .hero-art {
-  --scan-left: 37%;
-  --scan-top: 12%;
-  --scan-size: clamp(170px, 20vw, 300px);
+  --scan-left: 22.2%;
+  --scan-top: 11%;
+  --scan-size: 58.4%;
   position: absolute;
   z-index: 1;
   right: clamp(54px, 7vw, 136px);
@@ -257,13 +257,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   position: absolute;
   inset: 0;
   z-index: 3;
-  clip-path: inset(
-    var(--scan-top)
-    calc(100% - var(--scan-left) - var(--scan-size))
-    calc(100% - var(--scan-top) - var(--scan-size))
-    var(--scan-left)
-  );
-  opacity: 0;
+  clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top));
   pointer-events: none;
 }
 .hero-variant-xray { animation: squarePassXray 12s linear infinite; }
@@ -296,7 +290,7 @@ body.chaos-game-focus .cursor-field { opacity: 0; }
   width: var(--scan-size);
   aspect-ratio: 1;
   border: 1px solid var(--mint);
-  background: rgba(1, 222, 130, .14);
+  background: rgba(1, 222, 130, .34);
   left: var(--scan-left); top: var(--scan-top);
   color: var(--ink);
   padding: 12px;
@@ -308,24 +302,15 @@ body.chaos-game-focus .cursor-field { opacity: 0; }
   isolation: isolate;
 }
 .scan-square::before {
-  content: ""; position: absolute; left: 0; right: 0; height: 2px;
+  content: ""; position: absolute; left: 0; right: 0; height: 4px;
   z-index: 2;
-  top: -4px; background: rgba(255,255,255,.85);
-  box-shadow: 0 0 15px white;
+  top: 0; background: var(--paper);
+  box-shadow: 0 0 15px rgba(255,255,255,.7);
   animation: scan 12s linear infinite;
-}
-.scan-square::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: rgba(1, 222, 130, .58);
-  clip-path: inset(0 0 100% 0);
-  animation: scanFill 12s linear infinite;
 }
 .scan-square span {
   position: relative;
-  z-index: 3;
+  z-index: 1;
 }
 .crosshair {
   position: absolute;
@@ -550,17 +535,10 @@ footer p:last-child { justify-self: end; }
 @keyframes rise { from{opacity:0;transform:translateY(25px) scaleX(.84)} to{opacity:1;transform:translateY(0) scaleX(.84)} }
 @keyframes slideIn { from{opacity:0;transform:translateX(28px)} to{opacity:1;transform:none} }
 @keyframes scan {
-  0% { top: -3px; }
-  31%, 33% { top: calc(100% - 2px); }
-  64%, 66% { top: -3px; }
-  97%, 100% { top: calc(100% - 2px); }
-}
-@keyframes scanFill {
-  0%, 4% { clip-path: inset(0 0 100% 0); }
-  31%, 33% { clip-path: inset(0 0 0 0); }
-  34%, 37% { clip-path: inset(100% 0 0 0); }
-  64%, 66% { clip-path: inset(0 0 0 0); }
-  67%, 100% { clip-path: inset(0 0 100% 0); }
+  0% { top: 0; }
+  31%, 33% { top: calc(100% - 4px); }
+  64%, 66% { top: 0; }
+  97%, 100% { top: calc(100% - 4px); }
 }
 @keyframes squareXray {
   0% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top)); }
@@ -573,40 +551,14 @@ footer p:last-child { justify-self: end; }
   97%, 100% { clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
 }
 @keyframes squarePassXray {
-  0%, 4% {
-    opacity: 0;
-    clip-path: inset(var(--scan-top) calc(100% - var(--scan-left) - var(--scan-size)) calc(100% - var(--scan-top)) var(--scan-left));
-  }
-  9% {
-    opacity: .96;
-    clip-path: inset(var(--scan-top) calc(100% - var(--scan-left) - var(--scan-size)) calc(100% - var(--scan-top)) var(--scan-left));
-  }
-  31%, 33% {
-    opacity: .96;
-    clip-path: inset(var(--scan-top) calc(100% - var(--scan-left) - var(--scan-size)) calc(100% - var(--scan-top) - var(--scan-size)) var(--scan-left));
-  }
-  34%, 100% {
-    opacity: 0;
-    clip-path: inset(var(--scan-top) calc(100% - var(--scan-left) - var(--scan-size)) calc(100% - var(--scan-top) - var(--scan-size)) var(--scan-left));
-  }
+  0% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top)); }
+  31%, 64% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
+  66%, 100% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top)); }
 }
 @keyframes squarePassStatue {
-  0%, 33% {
-    opacity: 0;
-    clip-path: inset(calc(var(--scan-top) + var(--scan-size)) calc(100% - var(--scan-left) - var(--scan-size)) calc(100% - var(--scan-top) - var(--scan-size)) var(--scan-left));
-  }
-  38% {
-    opacity: .96;
-    clip-path: inset(calc(var(--scan-top) + var(--scan-size)) calc(100% - var(--scan-left) - var(--scan-size)) calc(100% - var(--scan-top) - var(--scan-size)) var(--scan-left));
-  }
-  64%, 66% {
-    opacity: .96;
-    clip-path: inset(var(--scan-top) calc(100% - var(--scan-left) - var(--scan-size)) calc(100% - var(--scan-top) - var(--scan-size)) var(--scan-left));
-  }
-  67%, 100% {
-    opacity: 0;
-    clip-path: inset(var(--scan-top) calc(100% - var(--scan-left) - var(--scan-size)) calc(100% - var(--scan-top) - var(--scan-size)) var(--scan-left));
-  }
+  0%, 33% { clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
+  64%, 66% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
+  97%, 100% { clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
 }
 @keyframes ticker { to{transform:translateX(-50%)} }
 @keyframes noteGlow { 0% { color: var(--muted); } 16.66% { color: var(--mint); } 33.33%, 100% { color: var(--muted); } }
@@ -712,9 +664,6 @@ footer p:last-child { justify-self: end; }
   .status-detail { display: none; }
   .hero-word { top: 7vh; font-size: 24vw; transform: scaleX(.9); }
   .hero-art {
-    --scan-left: 34%;
-    --scan-top: 18%;
-    --scan-size: clamp(104px, 28vw, 128px);
     min-width: 0;
     width: clamp(390px, 104vw, 520px);
     aspect-ratio: 4 / 5;
