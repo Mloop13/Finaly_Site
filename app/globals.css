@@ -227,9 +227,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .text-link:hover { color: var(--mint); }
 
 .hero-art {
-  --scan-left: 18.8%;
-  --scan-top: 11.8%;
-  --scan-size: 52.8%;
+  --scan-left: 22.2%;
+  --scan-top: 11%;
+  --scan-size: 58.4%;
   position: absolute;
   z-index: 1;
   right: clamp(54px, 7vw, 136px);
@@ -258,7 +258,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
   inset: 0;
   z-index: 3;
   clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top));
-  opacity: 0;
   pointer-events: none;
 }
 .hero-variant-xray { animation: squarePassXray 12s linear infinite; }
@@ -552,44 +551,14 @@ footer p:last-child { justify-self: end; }
   97%, 100% { clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
 }
 @keyframes squarePassXray {
-  0% {
-    opacity: .96;
-    clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top));
-  }
-  31%, 32.9% {
-    opacity: .96;
-    clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size)));
-  }
-  33%, 65.9% {
-    opacity: 0;
-    clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top));
-  }
-  66% {
-    opacity: .96;
-    clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top));
-  }
-  97%, 100% {
-    opacity: .96;
-    clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size)));
-  }
+  0% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top)); }
+  31%, 64% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
+  66%, 100% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top)); }
 }
 @keyframes squarePassStatue {
-  0%, 32.9% {
-    opacity: 0;
-    clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size)));
-  }
-  33% {
-    opacity: .96;
-    clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size)));
-  }
-  64%, 65.9% {
-    opacity: .96;
-    clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size)));
-  }
-  66%, 100% {
-    opacity: 0;
-    clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size)));
-  }
+  0%, 33% { clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
+  64%, 66% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
+  97%, 100% { clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
 }
 @keyframes ticker { to{transform:translateX(-50%)} }
 @keyframes noteGlow { 0% { color: var(--muted); } 16.66% { color: var(--mint); } 33.33%, 100% { color: var(--muted); } }
