@@ -241,7 +241,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   animation: slideIn .9s .08s ease both;
 }
 
-.hero-art img {
+.hero-portrait {
   width: 100%; height: 100%;
   object-fit: contain;
   object-position: center bottom;
@@ -250,19 +250,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
   -webkit-user-drag: none;
   user-select: none;
 }
-/* xray/statue лежат ровно поверх портрета в тех же координатах, что и квадрат:
-   обе величины берутся из --scan-* на .hero-art, поэтому clip-path садится
-   на рамку HUD пиксель в пиксель и за неё не выходит */
-.hero-art .hero-variant {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top));
-  pointer-events: none;
-}
-.hero-variant-xray { animation: squarePassXray 12s linear infinite; }
-.hero-variant-statue { animation: squarePassStatue 12s linear infinite; }
-
 /* --- Фоновое поле знаков под курсором (панели hero / метод / обо мне / контакт) --- */
 .cursor-field { position: absolute; inset: 0; z-index: 0; pointer-events: none; transition: opacity .22s ease; }
 .cursor-field canvas { display: block; width: 100%; height: 100%; }
@@ -281,44 +268,83 @@ body.chaos-game-focus .cursor-field { opacity: 0; }
   font-size: min(75vw, 920px);
   font-weight: 900;
   line-height: .8;
-  right: clamp(18px, 4vw, 104px); top: 1vh;
+  right: clamp(-92px, -4vw, -28px); top: 1vh;
   opacity: .92;
 }
-.scan-square {
+.scan-window {
   position: absolute;
   z-index: 4;
   width: var(--scan-size);
   aspect-ratio: 1;
   border: 1px solid var(--mint);
-  background: rgba(1, 222, 130, .34);
+  background: var(--ink);
   left: var(--scan-left); top: var(--scan-top);
-  color: var(--ink);
-  padding: 12px;
-  font: 8px/1.45 var(--font-geist-mono), monospace;
-  display: flex; flex-direction: column;
-  justify-content: flex-end;
   box-shadow: 0 0 50px rgba(1,222,130,.12);
   overflow: hidden;
   isolation: isolate;
 }
-.scan-square::before {
-  content: ""; position: absolute; left: 0; right: 0; height: 4px;
-  z-index: 2;
-  top: 0; background: var(--paper);
-  box-shadow: 0 0 15px rgba(255,255,255,.7);
-  animation: scan 12s linear infinite;
-}
-.scan-square span {
-  position: relative;
-  z-index: 1;
-}
-.crosshair {
+.scan-layer-mask {
   position: absolute;
-  left: calc(var(--scan-left) + var(--scan-size) / 2);
-  top: calc(var(--scan-top) + var(--scan-size) / 2);
-  z-index: 5;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  will-change: clip-path, opacity;
+}
+.scan-layer {
+  position: absolute;
+  left: -38.0137%;
+  top: -23.5445%;
+  z-index: 1;
+  width: 171.2329%;
+  height: 214.0411%;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.scan-window .scan-layer {
+  max-width: none;
+}
+.scan-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: rgba(1, 222, 130, .36);
+  pointer-events: none;
+}
+.scan-line {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: var(--paper);
+  box-shadow: 0 0 15px rgba(255,255,255,.7);
+  will-change: transform;
+  pointer-events: none;
+}
+.scan-cross {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--paper);
   font: 24px var(--font-geist-mono);
-  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.scan-meta {
+  position: absolute;
+  z-index: 4;
+  left: 4%;
+  bottom: 4%;
+  color: var(--ink);
+  font: 8px/1.45 var(--font-geist-mono), monospace;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
 }
 .hero-side {
   position: absolute;
@@ -534,32 +560,6 @@ footer p:last-child { justify-self: end; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
 @keyframes rise { from{opacity:0;transform:translateY(25px) scaleX(.84)} to{opacity:1;transform:translateY(0) scaleX(.84)} }
 @keyframes slideIn { from{opacity:0;transform:translateX(28px)} to{opacity:1;transform:none} }
-@keyframes scan {
-  0% { top: 0; }
-  31%, 33% { top: calc(100% - 4px); }
-  64%, 66% { top: 0; }
-  97%, 100% { top: calc(100% - 4px); }
-}
-@keyframes squareXray {
-  0% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top)); }
-  31%, 64% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
-  66%, 100% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top)); }
-}
-@keyframes squareStatue {
-  0%, 33% { clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
-  64%, 66% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
-  97%, 100% { clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
-}
-@keyframes squarePassXray {
-  0% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top)); }
-  31%, 64% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
-  66%, 100% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), var(--scan-left) var(--scan-top)); }
-}
-@keyframes squarePassStatue {
-  0%, 33% { clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
-  64%, 66% { clip-path: polygon(var(--scan-left) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) var(--scan-top), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
-  97%, 100% { clip-path: polygon(var(--scan-left) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), calc(var(--scan-left) + var(--scan-size)) calc(var(--scan-top) + var(--scan-size)), var(--scan-left) calc(var(--scan-top) + var(--scan-size))); }
-}
 @keyframes ticker { to{transform:translateX(-50%)} }
 @keyframes noteGlow { 0% { color: var(--muted); } 16.66% { color: var(--mint); } 33.33%, 100% { color: var(--muted); } }
 
@@ -665,15 +665,15 @@ footer p:last-child { justify-self: end; }
   .hero-word { top: 7vh; font-size: 24vw; transform: scaleX(.9); }
   .hero-art {
     min-width: 0;
-    width: clamp(390px, 104vw, 520px);
+    width: clamp(340px, 92vw, 500px);
     aspect-ratio: 4 / 5;
     height: auto;
-    right: clamp(-76px, -15vw, -44px);
+    right: clamp(-84px, -18vw, -52px);
     top: clamp(66px, 12svh, 104px);
-    opacity: .5;
+    opacity: .32;
   }
-  .hero-chevron { font-size: 92vw; opacity: .18; right: clamp(-8px, 2vw, 24px); }
-  .scan-square { opacity: .62; }
+  .hero-chevron { font-size: 92vw; opacity: .18; right: clamp(-70px, -12vw, -32px); }
+  .scan-window { opacity: .62; }
   .hero-copy { left: 5vw; width: 86vw; bottom: 22px; }
   .hero-copy h1 { font-size: clamp(34px, 9.4vw, 42px); line-height: .96; letter-spacing: -.055em; }
   .hero-copy h1 span { white-space: normal; overflow-wrap: anywhere; }
